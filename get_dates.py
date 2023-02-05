@@ -48,4 +48,6 @@ for file_path in all_files:
 
 
 df = pd.DataFrame(data)
+
+df = df.sort_values(by='date', ascending=False)
 df.to_csv('cash_5.csv', index=False)
