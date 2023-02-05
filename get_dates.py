@@ -17,19 +17,35 @@ for file_path in all_files:
 
     soup = BeautifulSoup(html, 'html.parser')
     for tr in soup.find_all('tr'):
-        tds = tr.find_all('td')
-        if len(tds) == 4 and 'Double Play' not in tds[2].text:
-            date = tds[0].text.strip()
-            balls = [ball.text for ball in tds[1].find_all('span', class_='ball')]
+        try:
+            tds = tr.find_all('td')
+            if len(tds) == 4 and 'Double Play' not in tds[2].text:
+                date = tds[0].text.strip()
+                balls = [ball.text for ball in tds[1].find_all('span', class_='ball')]
 
-            payout = tds[2].text.strip().replace('$', '')
-            payout = int(payout)
+                payout = tds[2].text.strip()
+                date_object = datetime.strptime(date, '%Y %b %d')
+                date = date_object.strftime('%Y-%m-%d')
 
-            date_object = datetime.strptime(date, '%Y %b %d')
-            date = date_object.strftime('%Y-%m-%d')
-            
-            if 'Double' not in payout:
-                data.append({'date': date, 'balls': balls, 'payout': payout})
+                if 'Double' not in payout:
+                    payout = payout.replace('$', '').replace(',', '')
+                    payout = int(payout)
+
+                    ball1, ball2, ball3, ball4, ball5 = balls
+
+                    data.append({'date': date,
+                                 'Ball One': ball1,
+                                 'Ball Two': ball2,
+                                 'Ball Three': ball3,
+                                 'Ball Four': ball4,
+                                 'Ball Five': ball5,
+                                 'payout': payout})
+
+                    print(data)
+
+        except Exception as err:
+            print(err)
+
 
 df = pd.DataFrame(data)
-print(df)
+df.to_csv('cash_5.csv', index=False)
